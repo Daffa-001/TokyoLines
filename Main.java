@@ -17,8 +17,12 @@ public class Main {
         tokyo.addEdge(4, 3); // Akihabara - Ueno
         tokyo.addEdge(3, 5); // Ueno - Asakusa
 
+        // ===== PRINT ALL LINES =====
+        System.out.println("Tokyo Line Connections:");
+        printLines(tokyo, stations);
+
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter origin station: ");
+        System.out.print("\nEnter origin station: ");
         String origin = sc.nextLine();
 
         System.out.print("Enter destination station: ");
@@ -51,6 +55,26 @@ public class Main {
             System.out.println("BFS: Destination cannot be reached from origin.");
         } else {
             System.out.println("BFS Path: " + bfsPath);
+        }
+    }
+
+    // ===== HELPER TO PRINT ALL LINES =====
+    private static void printLines(TokyoLines<String> graph, String[] stations) {
+        for (int i = 0; i < stations.length; i++) {
+            for (int j = i + 1; j < stations.length; j++) {
+                try {
+                    // Access adjacency matrix using reflection (same structure as original)
+                    var field = graph.getClass().getDeclaredField("adjMatrix");
+                    field.setAccessible(true);
+                    boolean[][] adj = (boolean[][]) field.get(graph);
+
+                    if (adj[i][j]) {
+                        System.out.println(stations[i] + " -> " + stations[j]);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
