@@ -1,144 +1,92 @@
 import java.util.*;
 
 public class TokyoLines<T> {
-
-    private int nVertices;
-    private LinkedList<Integer>[] adjacencyList;
-    private T[] vertices;
+    private int size;
+    private T[] data;
+    private boolean[][] adjMatrix;
 
     @SuppressWarnings("unchecked")
-    public TokyoLines(int nVertices, T[] vertices) {
-        this.nVertices = nVertices;
-        this.adjacencyList = new LinkedList[nVertices];
-        for (int i = 0; i < nVertices; i++) {
-            adjacencyList[i] = new LinkedList<>();
-        }
-        this.vertices = vertices;
+    public TokyoLines(int size, T[] data) {
+        this.size = size;
+        this.data = data;
+        adjMatrix = new boolean[size][size];
     }
 
-    public void addEdge(int v, int w) {
-        adjacencyList[v].add(w);
-        adjacencyList[w].add(v); // graph dua arah
+    public void addEdge(int from, int to) {
+        adjMatrix[from][to] = true;
+        adjMatrix[to][from] = true; // undirected (Tokyo lines)
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < nVertices; i++) {
-            sb.append(i + ": " + vertices[i] + " -> " + adjacencyList[i] + "\n");
-        }
-        return sb.toString();
-    }
-
-    public int findIndex(T name) {
-        for (int i = 0; i < vertices.length; i++) {
-            if (vertices[i].equals(name)) {
-                return i;
-            }
+    public int indexOf(T value) {
+        for (int i = 0; i < size; i++) {
+            if (data[i].equals(value)) return i;
         }
         return -1;
     }
 
-    /* DFS PATH */
-    public void findPathDFS(T origin, T destination) {
-        int start = findIndex(origin);
-        int end = findIndex(destination);
-
-        if (start == -1) {
-            System.out.println("Origin station not found.");
-            return;
-        }
-        if (end == -1) {
-            System.out.println("Destination station not found.");
-            return;
-        }
-
-        boolean[] visited = new boolean[nVertices];
-        int[] parent = new int[nVertices];
+    // ===== DFS PATH SEARCH =====
+    public List<T> dfsPath(int start, int goal) {
+        boolean[] visited = new boolean[size];
+        int[] parent = new int[size];
         Arrays.fill(parent, -1);
 
         Stack<Integer> stack = new Stack<>();
         stack.push(start);
 
         while (!stack.isEmpty()) {
-            int current = stack.pop();
+            int curr = stack.pop();
+            if (!visited[curr]) {
+                visited[curr] = true;
 
-            if (!visited[current]) {
-                visited[current] = true;
+                if (curr == goal) break;
 
-                if (current == end) break;
-
-                for (int neighbor : adjacencyList[current]) {
-                    if (!visited[neighbor]) {
-                        parent[neighbor] = current;
-                        stack.push(neighbor);
+                for (int i = size - 1; i >= 0; i--) {
+                    if (adjMatrix[curr][i] && !visited[i]) {
+                        parent[i] = curr;
+                        stack.push(i);
                     }
                 }
             }
         }
 
-        if (parent[end] == -1 && start != end) {
-            System.out.println("No path found (DFS).");
-            return;
-        }
-
-        List<T> path = new ArrayList<>();
-        int node = end;
-        while (node != -1) {
-            path.add(0, vertices[node]);
-            node = parent[node];
-        }
-
-        System.out.println("DFS Path: " + path);
+        if (parent[goal] == -1 && start != goal) return null;
+        return reconstructPath(start, goal, parent);
     }
 
-    /* BFS PATH */
-    public void findPathBFS(T origin, T destination) {
-        int start = findIndex(origin);
-        int end = findIndex(destination);
-
-        if (start == -1) {
-            System.out.println("Origin station not found.");
-            return;
-        }
-        if (end == -1) {
-            System.out.println("Destination station not found.");
-            return;
-        }
-
-        boolean[] visited = new boolean[nVertices];
-        int[] parent = new int[nVertices];
+    // ===== BFS PATH SEARCH =====
+    public List<T> bfsPath(int start, int goal) {
+        boolean[] visited = new boolean[size];
+        int[] parent = new int[size];
         Arrays.fill(parent, -1);
 
-        Queue<Integer> queue = new LinkedList<>();
-        queue.add(start);
+        Queue<Integer> q = new LinkedList<>();
+        q.add(start);
         visited[start] = true;
 
-        while (!queue.isEmpty()) {
-            int current = queue.poll();
+        while (!q.isEmpty()) {
+            int curr = q.remove();
 
-            if (current == end) break;
+            if (curr == goal) break;
 
-            for (int neighbor : adjacencyList[current]) {
-                if (!visited[neighbor]) {
-                    visited[neighbor] = true;
-                    parent[neighbor] = current;
-                    queue.add(neighbor);
+            for (int i = 0; i < size; i++) {
+                if (adjMatrix[curr][i] && !visited[i]) {
+                    visited[i] = true;
+                    parent[i] = curr;
+                    q.add(i);
                 }
             }
         }
 
-        if (parent[end] == -1 && start != end) {
-            System.out.println("No path found (BFS).");
-            return;
-        }
+        if (parent[goal] == -1 && start != goal) return null;
+        return reconstructPath(start, goal, parent);
+    }
 
+    private List<T> reconstructPath(int start, int goal, int[] parent) {
         List<T> path = new ArrayList<>();
-        int node = end;
-        while (node != -1) {
-            path.add(0, vertices[node]);
-            node = parent[node];
+        for (int at = goal; at != -1; at = parent[at]) {
+            path.add(data[at]);
         }
-
-        System.out.println("BFS Path: " + path);
+        Collections.reverse(path);
+        return path;
     }
 }
