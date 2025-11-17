@@ -3,33 +3,54 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) {
 
-        Scanner input = new Scanner(System.in);
-
         String[] stations = {
-                "Shinjuku", "Shibuya", "Meguro", "Shinagawa", "Ikebukuro", "Gotanda"
+                "Shinjuku", "Harajuku", "Shibuya",
+                "Ueno", "Akihabara", "Asakusa"
         };
 
-        TokyoLines<String> g = new TokyoLines<>(stations.length, stations);
+        TokyoLines<String> tokyo = new TokyoLines<>(6, stations);
 
-        // Tambah edge (tetap sama)
-        g.addEdge(0, 1);
-        g.addEdge(1, 2);
-        g.addEdge(2, 3);
-        g.addEdge(0, 4);
-        g.addEdge(2, 5);
+        // Connections (simplified Tokyo network)
+        tokyo.addEdge(0, 1); // Shinjuku - Harajuku
+        tokyo.addEdge(1, 2); // Harajuku - Shibuya
+        tokyo.addEdge(2, 4); // Shibuya - Akihabara
+        tokyo.addEdge(4, 3); // Akihabara - Ueno
+        tokyo.addEdge(3, 5); // Ueno - Asakusa
 
-        System.out.println(g);
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter origin station: ");
+        String origin = sc.nextLine();
 
-        System.out.print("Masukkan origin   : ");
-        String origin = input.nextLine();
+        System.out.print("Enter destination station: ");
+        String dest = sc.nextLine();
 
-        System.out.print("Masukkan destination : ");
-        String destination = input.nextLine();
+        int start = tokyo.indexOf(origin);
+        int goal = tokyo.indexOf(dest);
 
-        System.out.println();
-        g.findPathBFS(origin, destination);
-        g.findPathDFS(origin, destination);
+        // Validation
+        if (start == -1) {
+            System.out.println("Origin station not found.");
+            return;
+        }
+        if (goal == -1) {
+            System.out.println("Destination station not found.");
+            return;
+        }
 
-        input.close();
+        // DFS Search
+        List<String> dfsPath = tokyo.dfsPath(start, goal);
+        if (dfsPath == null) {
+            System.out.println("DFS: Destination cannot be reached from origin.");
+        } else {
+            System.out.println("DFS Path: " + dfsPath);
+        }
+
+        // BFS Search
+        List<String> bfsPath = tokyo.bfsPath(start, goal);
+        if (bfsPath == null) {
+            System.out.println("BFS: Destination cannot be reached from origin.");
+        } else {
+            System.out.println("BFS Path: " + bfsPath);
+        }
     }
 }
