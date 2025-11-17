@@ -10,11 +10,10 @@ public class Main {
 
         TokyoLines<String> tokyo = new TokyoLines<>(6, stations);
 
-        // Connections (simplified Tokyo network)
         tokyo.addEdge(0, 1); // Shinjuku - Harajuku
         tokyo.addEdge(1, 2); // Harajuku - Shibuya
 
-        tokyo.addEdge(2, 3); // Shibuya - Ueno (NEW shortcut)
+        tokyo.addEdge(2, 3); // Shibuya - Ueno
         tokyo.addEdge(2, 4); // Shibuya - Akihabara
 
         tokyo.addEdge(4, 3); // Akihabara - Ueno
@@ -61,7 +60,6 @@ public class Main {
         }
     }
 
-    // ===== HELPER TO PRINT ALL LINES =====
     private static void printLines(TokyoLines<String> graph, String[] stations) {
         for (int i = 0; i < stations.length; i++) {
             for (int j = i + 1; j < stations.length; j++) {
