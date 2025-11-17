@@ -15,9 +15,14 @@ public class Main {
 
         tokyo.addEdge(2, 3); // Shibuya - Ueno
         tokyo.addEdge(2, 4); // Shibuya - Akihabara
+        tokyo.addEdge(2, 0); // Shibuya - Shinjuku
 
         tokyo.addEdge(4, 3); // Akihabara - Ueno
         tokyo.addEdge(3, 5); // Ueno - Asakusa
+
+        // Example input with different DFS + BFS:
+        // Shinjuku -> Shibuya (and routes that include it like Shinjuku -> Asakusa)
+        // Ueno -> Akihabara
 
         // ===== PRINT ALL LINES =====
         System.out.println("Tokyo Line Connections:");
@@ -64,7 +69,7 @@ public class Main {
         for (int i = 0; i < stations.length; i++) {
             for (int j = i + 1; j < stations.length; j++) {
                 try {
-                    // Access adjacency matrix using reflection (same structure as original)
+                    // Access adjacency matrix using reflection
                     var field = graph.getClass().getDeclaredField("adjMatrix");
                     field.setAccessible(true);
                     boolean[][] adj = (boolean[][]) field.get(graph);
